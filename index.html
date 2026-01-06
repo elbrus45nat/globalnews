@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global News Monitor</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🌍 Global News Monitor</h1>
+            <p class="tagline">Live feed from international news agencies</p>
+            <div class="header-stats">
+                <span id="news-count">0 noticias</span>
+                <span id="last-update">Última actualización: --:--</span>
+                <button id="refresh-btn" class="btn-refresh">🔄 Actualizar</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Filtros y controles -->
+        <aside class="sidebar">
+            <div class="filters-section">
+                <h3>📰 Fuentes</h3>
+                <div class="filter-group" id="source-filters">
+                    <label><input type="checkbox" value="reuters" checked> Reuters</label>
+                    <label><input type="checkbox" value="afp" checked> AFP</label>
+                    <label><input type="checkbox" value="tass" checked> TASS</label>
+                    <label><input type="checkbox" value="politico" checked> Politico</label>
+                    <label><input type="checkbox" value="lemonde" checked> Le Monde</label>
+                    <label><input type="checkbox" value="guardian" checked> The Guardian</label>
+                    <label><input type="checkbox" value="telegraph" checked> The Telegraph</label>
+                    <label><input type="checkbox" value="aljazeera" checked> Al Jazeera</label>
+                </div>
+
+                <h3>🌍 Regiones</h3>
+                <div class="filter-group" id="region-filters">
+                    <label><input type="checkbox" value="all" checked> Todas</label>
+                    <label><input type="checkbox" value="europe"> Europa</label>
+                    <label><input type="checkbox" value="americas"> Américas</label>
+                    <label><input type="checkbox" value="asia"> Asia</label>
+                    <label><input type="checkbox" value="africa"> África</label>
+                    <label><input type="checkbox" value="middle-east"> Medio Oriente</label>
+                    <label><input type="checkbox" value="oceania"> Oceanía</label>
+                </div>
+
+                <h3>🔍 Búsqueda</h3>
+                <input type="text" id="search-input" placeholder="Buscar en noticias...">
+
+                <h3>⚙️ Opciones</h3>
+                <div class="options-group">
+                    <label>
+                        <input type="checkbox" id="auto-refresh" checked>
+                        Auto-actualizar (5 min)
+                    </label>
+                    <label>
+                        <input type="checkbox" id="show-map" checked>
+                        Mostrar mapa
+                    </label>
+                    <label>
+                        <input type="checkbox" id="cluster-markers" checked>
+                        Agrupar marcadores
+                    </label>
+                </div>
+
+                <button id="clear-filters" class="btn-secondary">Limpiar filtros</button>
+            </div>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="content">
+            <!-- Mapa -->
+            <div id="map-container" class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <!-- Vista de noticias -->
+            <div class="news-view">
+                <div class="view-controls">
+                    <button class="view-btn active" data-view="cards">📱 Cards</button>
+                    <button class="view-btn" data-view="list">📋 Lista</button>
+                    <button class="view-btn" data-view="compact">📄 Compacto</button>
+                </div>
+
+                <div class="sort-controls">
+                    <select id="sort-by">
+                        <option value="date-desc">Más recientes primero</option>
+                        <option value="date-asc">Más antiguas primero</option>
+                        <option value="source">Por fuente</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Lista de noticias -->
+            <div id="news-list" class="news-list cards-view">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando noticias...</p>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination" id="pagination">
+                <button id="prev-page" disabled>← Anterior</button>
+                <span id="page-info">Página 1</span>
+                <button id="next-page">Siguiente →</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de noticia completa -->
+    <div id="news-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="config.js"></script>
+    <script src="rss-parser.js"></script>
+    <script src="geocoding.js"></script>
+    <script src="map.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
