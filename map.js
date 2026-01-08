@@ -45,8 +45,12 @@ class MapManager {
         // Limpiar marcadores anteriores
         this.clearMarkers();
 
+        // Limitar cantidad de marcadores para mejor performance
+        const maxMarkers = CONFIG.MAX_MAP_MARKERS || 100;
+        const newsToShow = newsArray.slice(0, maxMarkers);
+
         // Agregar nuevos marcadores
-        for (const news of newsArray) {
+        for (const news of newsToShow) {
             if (!news.primaryLocation) continue;
 
             const marker = this.createMarker(news);

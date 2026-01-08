@@ -20,6 +20,7 @@
             <div class="header-stats">
                 <span id="news-count">0 noticias</span>
                 <span id="last-update">Última actualización: --:--</span>
+                <span id="proxy-status" class="proxy-status" title="Proxy CORS en uso">🔄 Proxy: --</span>
                 <button id="refresh-btn" class="btn-refresh">🔄 Actualizar</button>
             </div>
         </div>
@@ -39,6 +40,24 @@
                     <label><input type="checkbox" value="guardian" checked> The Guardian</label>
                     <label><input type="checkbox" value="telegraph" checked> The Telegraph</label>
                     <label><input type="checkbox" value="aljazeera" checked> Al Jazeera</label>
+                    <label><input type="checkbox" value="bbc" checked> BBC News</label>
+                    <label><input type="checkbox" value="dw" checked> Deutsche Welle</label>
+                    <label><input type="checkbox" value="apnews" checked> AP News</label>
+                    <label><input type="checkbox" value="nyt" checked> NY Times</label>
+                    <label><input type="checkbox" value="cnn" checked> CNN</label>
+                    <label><input type="checkbox" value="france24" checked> France 24</label>
+                    <label><input type="checkbox" value="xinhua" checked> Xinhua</label>
+                    <label><input type="checkbox" value="spiegel" checked> Der Spiegel</label>
+                    <label><input type="checkbox" value="scmp" checked> SCMP</label>
+                    <label><input type="checkbox" value="elpais" checked> El País</label>
+                </div>
+
+                <h3>➕ Custom RSS</h3>
+                <div class="custom-rss-section">
+                    <input type="text" id="custom-rss-url" placeholder="https://example.com/feed.xml">
+                    <input type="text" id="custom-rss-name" placeholder="Nombre de la fuente">
+                    <button id="add-custom-rss" class="btn-primary">Agregar RSS</button>
+                    <div id="custom-rss-list"></div>
                 </div>
 
                 <h3>🌍 Regiones</h3>
@@ -127,6 +146,8 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <!-- Readability para extracción de artículos -->
+    <script src="https://unpkg.com/@mozilla/readability@0.4.4/Readability.js"></script>
     <script src="config.js"></script>
     <script src="rss-parser.js"></script>
     <script src="geocoding.js"></script>

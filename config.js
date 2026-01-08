@@ -58,7 +58,80 @@ const RSS_FEEDS = {
         urls: [
             'https://www.aljazeera.com/xml/rss/all.xml',
         ],
-        color: '#F39200'
+        color: '#F39200',
+        directAccess: true // Intenta sin proxy primero
+    },
+    bbc: {
+        name: 'BBC News',
+        urls: [
+            'http://feeds.bbci.co.uk/news/world/rss.xml',
+            'http://feeds.bbci.co.uk/news/rss.xml',
+        ],
+        color: '#BB1919'
+    },
+    dw: {
+        name: 'Deutsche Welle',
+        urls: [
+            'https://rss.dw.com/xml/rss-en-world',
+            'https://rss.dw.com/xml/rss-en-all',
+        ],
+        color: '#0080C9'
+    },
+    apnews: {
+        name: 'AP News',
+        urls: [
+            'https://apnews.com/apf-topnews',
+        ],
+        color: '#ED3524'
+    },
+    nyt: {
+        name: 'New York Times',
+        urls: [
+            'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+        ],
+        color: '#000000'
+    },
+    cnn: {
+        name: 'CNN',
+        urls: [
+            'http://rss.cnn.com/rss/edition_world.rss',
+        ],
+        color: '#CC0000'
+    },
+    france24: {
+        name: 'France 24',
+        urls: [
+            'https://www.france24.com/en/rss',
+        ],
+        color: '#E2001A'
+    },
+    xinhua: {
+        name: 'Xinhua',
+        urls: [
+            'http://www.xinhuanet.com/english/rss/worldrss.xml',
+        ],
+        color: '#C8102E'
+    },
+    spiegel: {
+        name: 'Der Spiegel',
+        urls: [
+            'https://www.spiegel.de/international/index.rss',
+        ],
+        color: '#D01519'
+    },
+    scmp: {
+        name: 'South China Morning Post',
+        urls: [
+            'https://www.scmp.com/rss/91/feed',
+        ],
+        color: '#004080'
+    },
+    elpais: {
+        name: 'El País',
+        urls: [
+            'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada',
+        ],
+        color: '#1E88E5'
     }
 };
 
@@ -197,12 +270,23 @@ const LOCATION_COORDS = {
 // Configuración general
 const CONFIG = {
     UPDATE_INTERVAL: 300000, // 5 minutos en milisegundos
-    NEWS_PER_PAGE: 20,
+    NEWS_PER_PAGE: 50, // Aumentado de 20 a 50
     MAX_DESCRIPTION_LENGTH: 200,
     ENABLE_AUTO_REFRESH: true,
     DEFAULT_MAP_CENTER: [20, 0], // Centro del mapa (lat, lng)
     DEFAULT_MAP_ZOOM: 2,
-    CORS_PROXY: 'https://api.allorigins.win/raw?url=', // Proxy para evitar CORS
+    
+    // Sistema de múltiples proxies con fallback automático
+    CORS_PROXIES: [
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://api.allorigins.win/raw?url=',
+        'https://thingproxy.freeboard.io/fetch/',
+    ],
+    CURRENT_PROXY_INDEX: 0, // Índice del proxy actual
+    
+    MAP_LAZY_LOAD: true, // Cargar mapa solo cuando sea necesario
+    MAX_MAP_MARKERS: 100, // Limitar marcadores para mejor performance
 };
 
 // Export para uso en otros archivos

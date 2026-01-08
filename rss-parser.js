@@ -5,22 +5,92 @@ class RSSParser {
         this.cacheExpiry = 5 * 60 * 1000; // 5 minutos
     }
 
-    async fetchFeed(url, useProxy = true) {
+    async fetchFeed(url, useProxy = true, feedConfig = {}) {
         // Verificar caché
         const cached = this.cache.get(url);
         if (cached && (Date.now() - cached.timestamp) < this.cacheExpiry) {
             return cached.data;
         }
 
+        // Intentar primero sin proxy si está marcado como directAccess
+        if (feedConfig.directAccess) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const text = await response.text();
+                    const items = this.parseXML(text);
+                    this.cache.set(url, { data: items, timestamp: Date.now() });
+                    return items;
+                }
+            } catch (error) {
+                console.log(`Direct access failed for ${url}, trying with proxy...`);
+            }
+        }
+
+        // Si falla o no es directAccess, intentar con proxies
+        if (useProxy && CONFIG.CORS_PROXIES && CONFIG.CORS_PROXIES.length > 0) {
+            return await this.fetchWithProxyFallback(url);
+        }
+
+        // Intentar sin proxy como último recurso
         try {
-            const fetchUrl = useProxy ? `${CONFIG.CORS_PROXY}${encodeURIComponent(url)}` : url;
-            const response = await fetch(fetchUrl);
-            
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
             const text = await response.text();
+            const items = this.parseXML(text);
+            this.cache.set(url, { data: items, timestamp: Date.now() });
+            return items;
+        } catch (error) {
+            console.error(`Error fetching RSS feed ${url}:`, error);
+            return [];
+        }
+    }
+
+    async fetchWithProxyFallback(url) {
+        const proxies = CONFIG.CORS_PROXIES;
+        let lastError = null;
+
+        // Intentar con cada proxy
+        for (let i = 0; i < proxies.length; i++) {
+            const proxyIndex = (CONFIG.CURRENT_PROXY_INDEX + i) % proxies.length;
+            const proxy = proxies[proxyIndex];
+            
+            try {
+                const fetchUrl = proxy + encodeURIComponent(url);
+                console.log(`Trying proxy ${proxyIndex + 1}/${proxies.length}: ${proxy.substring(0, 30)}...`);
+                
+                const response = await fetch(fetchUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                const items = this.parseXML(text);
+                
+                // Si llegamos aquí, este proxy funcionó
+                CONFIG.CURRENT_PROXY_INDEX = proxyIndex;
+                console.log(`✓ Proxy ${proxyIndex + 1} worked for ${url.substring(0, 50)}...`);
+                
+                this.cache.set(url, { data: items, timestamp: Date.now() });
+                return items;
+                
+            } catch (error) {
+                lastError = error;
+                console.log(`✗ Proxy ${proxyIndex + 1} failed:`, error.message);
+                // Continuar con el siguiente proxy
+            }
+        }
+
+        // Si todos los proxies fallaron
+        console.error(`All proxies failed for ${url}:`, lastError);
+        return [];
+    }
+
+    parseXML(text) {
+        try {
             const parser = new DOMParser();
             const xml = parser.parseFromString(text, 'text/xml');
             
@@ -30,17 +100,9 @@ class RSSParser {
                 throw new Error('Error parsing XML');
             }
             
-            const items = this.parseItems(xml);
-            
-            // Guardar en caché
-            this.cache.set(url, {
-                data: items,
-                timestamp: Date.now()
-            });
-            
-            return items;
+            return this.parseItems(xml);
         } catch (error) {
-            console.error(`Error fetching RSS feed ${url}:`, error);
+            console.error('Error parsing XML:', error);
             return [];
         }
     }
@@ -216,7 +278,7 @@ class RSSParser {
         for (const [source, config] of Object.entries(feeds)) {
             for (const url of config.urls) {
                 promises.push(
-                    this.fetchFeed(url).then(items => {
+                    this.fetchFeed(url, true, config).then(items => {
                         items.forEach(item => {
                             allNews.push({
                                 ...item,
@@ -225,6 +287,8 @@ class RSSParser {
                                 sourceColor: config.color
                             });
                         });
+                    }).catch(error => {
+                        console.error(`Failed to fetch ${source}:`, error);
                     })
                 );
             }
@@ -238,6 +302,7 @@ class RSSParser {
         // Eliminar duplicados basados en título similar
         const uniqueNews = this.removeDuplicates(allNews);
 
+        console.log(`✓ Successfully loaded ${uniqueNews.length} news items from ${Object.keys(feeds).length} sources`);
         return uniqueNews;
     }
 
